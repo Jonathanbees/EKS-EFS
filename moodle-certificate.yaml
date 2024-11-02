@@ -1,0 +1,13 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: reto2-tls-cert
+  namespace: default  # Reemplaza si usas otro namespace
+spec:
+  secretName: reto2-tls-secret  # Este será el nombre del secreto que contendrá el certificado SSL
+  dnsNames:
+  - reto2telematicakubernetes.online  # Reemplaza con tu dominio
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+

@@ -1,0 +1,30 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: moodle-ingress
+  namespace: default
+  annotations:
+    kubernetes.io/ingress.class: "nginx"  # Esta línea asigna el controlador Nginx
+    cert-manager.io/cluster-issuer: "letsencrypt-prod"
+    nginx.ingress.kubernetes.io/rewrite-target: /
+    nginx.ingress.kubernetes.io/proxy-set-headers: |
+      X-Forwarded-For: $remote_addr
+      X-Forwarded-Proto: $scheme
+      X-Forwarded-Host: $host
+spec:
+  tls:
+  - hosts:
+    - kub.reto2telematicakubernetes.online  # Reemplaza con tu dominio
+    secretName: reto2-tls-secret  # El nombre del secreto con el certificado SSL
+  rules:
+  - host: kub.reto2telematicakubernetes.online
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: my-moodle
+            port:
+              number: 80
+
