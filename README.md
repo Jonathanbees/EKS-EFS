@@ -101,6 +101,75 @@ Gracias por compartir las imágenes. Tras revisarlas, se puede hacer una interpr
 
 ## 5. Fotos de la ejecución del sistema:
 
+### Distribución (Desde consola)
+
+- Servicios
+![Imagen de WhatsApp 2024-11-01 a las 20 08 58_780a85bf](https://github.com/user-attachments/assets/0030fc2f-ad86-4b39-b1eb-ddf9a698ba37)
+
+- Pods con replicación
+![Imagen de WhatsApp 2024-11-01 a las 20 08 58_b43b2bf4](https://github.com/user-attachments/assets/1f59c71f-9a16-41d1-991f-5eba9e987a47)
+
+- PV
+![Imagen de WhatsApp 2024-11-01 a las 20 08 59_3ed5c25f](https://github.com/user-attachments/assets/7bd67452-f17c-48c8-85a4-a4fd01e7b956)
+
+- PVC
+![Imagen de WhatsApp 2024-11-01 a las 20 08 59_6da87829](https://github.com/user-attachments/assets/b47f93ad-0446-4830-bb19-7f2cc06189a4)
+
+- Acceso a moodle adentro de un pod
+![Imagen de WhatsApp 2024-11-01 a las 20 13 08_90d2df97](https://github.com/user-attachments/assets/c49a2b67-6a3e-48d3-9eaa-7036aab4ed3a)
+
+### Distribución (Desde interfaz de AWS)
+
+- Clúster: ReplicaSets (Réplicas de los pods)
+![Imagen de WhatsApp 2024-11-01 a las 20 38 43_6ae9f0ae](https://github.com/user-attachments/assets/227f1504-ddf9-41ad-9ef1-218476c1efea)
+
+- Nodos workers EC2 creados
+![Imagen de WhatsApp 2024-11-01 a las 20 38 43_557d32d7](https://github.com/user-attachments/assets/d8ff2438-4a35-4d2b-8d2b-fbc10a6403fe)
+
+- Clúster: Implementaciones
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_3e02a94c](https://github.com/user-attachments/assets/a8c51f6f-f201-43a2-a6e9-025bb809f032)
+
+- Pods
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_58f884a4](https://github.com/user-attachments/assets/da3214c8-5c51-4521-a516-3c8c944d982e)
+
+- Clúster: Daemons
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_fb256642](https://github.com/user-attachments/assets/f44bb13c-af55-43c4-be65-72f0c473556b)
+
+- PVCs
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_7bb37b51](https://github.com/user-attachments/assets/a053c385-55c2-4bb4-b2ad-707137c8c0ea)
+
+- PVs
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_5f86a109](https://github.com/user-attachments/assets/232d6fd0-bccd-46a8-b452-4dd994123a72)
+
+- Storage Classes (para conectar PVCs y PVs, conexión EKS-EFS)
+![Imagen de WhatsApp 2024-11-01 a las 20 38 44_ee0bd674](https://github.com/user-attachments/assets/7a4b16a8-521c-43ba-ae99-507746d07b41)
+
+- Nos acabamos los créditos :(
+![Imagen de WhatsApp 2024-11-01 a las 20 39 41_7dad5ed5](https://github.com/user-attachments/assets/2b751d86-b172-49b0-a39a-44f0a19f8a3b)
+
+### Moodle en funcionamiento
+
+- Login
+![Imagen de WhatsApp 2024-11-01 a las 20 17 41_e7a02df7](https://github.com/user-attachments/assets/02236d34-7e67-480a-afee-f4fd5bf910c7)
+
+- Password reset
+![Imagen de WhatsApp 2024-11-01 a las 20 17 41_486493ad](https://github.com/user-attachments/assets/240640c7-353c-4ecc-8468-d21b8792c9bc)
+
+- Vista de usuario
+![Imagen de WhatsApp 2024-11-01 a las 20 23 26_4e75ab2f](https://github.com/user-attachments/assets/46a40fae-d2b4-4ab0-ad30-d3e88718981c)
+
+- Hi Admin
+![Imagen de WhatsApp 2024-11-01 a las 20 25 11_fb295166](https://github.com/user-attachments/assets/964b3838-b268-4997-8687-9ec83a453b9a)
+
+- Creación de curso
+![Imagen de WhatsApp 2024-11-01 a las 20 27 06_0d14a7aa](https://github.com/user-attachments/assets/fcccebbd-2a72-434d-85ae-d51ca405ca41)
+
+- Curso creado
+![Imagen de WhatsApp 2024-11-01 a las 20 30 15_1322b66a](https://github.com/user-attachments/assets/d2e40d14-07b0-460d-bb98-8bbe1ec6fd6f)
+
+- Secciones de curso
+![Imagen de WhatsApp 2024-11-01 a las 20 30 43_b3b3cec1](https://github.com/user-attachments/assets/a12dfaa3-70db-4545-95cd-ddc893267ef5)
+
 ---
 
 ## 6. Video:
