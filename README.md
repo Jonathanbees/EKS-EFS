@@ -90,6 +90,7 @@ En el proyecto, desplegamos Moodle en un clúster Kubernetes de alta disponibili
    kubectl get pods
    kubectl get svc
    ```
+   
 ---
 
 ## 4. Configuración y despliegue en AWS EKS
@@ -107,9 +108,9 @@ En el proyecto, desplegamos Moodle en un clúster Kubernetes de alta disponibili
 - Aplicar los archivos `efs-storageclass.yaml`, `efs-pv.yaml`, y `efs-pvc.yaml` para definir la clase de almacenamiento, el volumen persistente y el reclamo de volumen en Kubernetes.
 
 ```bash
-kubectl apply -f /mnt/data/efs-storageclass.yaml
-kubectl apply -f /mnt/data/efs-pv.yaml
-kubectl apply -f /mnt/data/efs-pvc.yaml
+kubectl apply -f /moodle-deployment/efs-storageclass.yaml
+kubectl apply -f /moodle-deployment/efs-pv.yaml
+kubectl apply -f /moodle-deployment/efs-pvc.yaml
 ```
 
 ### Configuración del clúster EKS
@@ -143,25 +144,26 @@ kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5
 Aplicar el archivo `letsencrypt-issuer.yaml` para configurar el emisor de certificados SSL con Let's Encrypt.
 
 ```bash
-kubectl apply -f /mnt/data/letsencrypt-issuer.yaml
+kubectl apply -f /moodle-deployment/letsencrypt-issuer.yaml
 ```
 
-### Despliegue de NGINX Ingress y servicios de base de datos
+### Despliegue de NGINX Ingress y servicio de base de datos MariaDB
 
 #### 1. Desplegar NGINX para el balanceo de carga
 - Aplicar los archivos `nginx-deployment.yaml` y `nginx-service.yaml` para configurar el despliegue y servicio de NGINX.
 
 ```bash
-kubectl apply -f /mnt/data/nginx-deployment.yaml
-kubectl apply -f /mnt/data/nginx-service.yaml
+kubectl apply -f /moodle-deployment/nginx-deployment.yaml
+kubectl apply -f /moodle-deployment/nginx-service.yaml
 ```
 
-#### 2. Desplegar el servicio MySQL para la base de datos de Moodle
-- Aplicar los archivos `mysql-deployment.yaml` y `mysql-service.yaml` para configurar la base de datos MySQL en Kubernetes.
+#### 2. Desplegar MariaDB para la base de datos de Moodle
+- Inicialmente, intentamos configurar MySQL, pero surgieron problemas, por lo que se implementó MariaDB en su lugar.
+- Aplicar los archivos `mariadb-deployment.yaml` y `mariadb-service.yaml` (anteriormente `mysql-deployment.yaml` y `mysql-service.yaml`) para configurar la base de datos MariaDB en Kubernetes.
 
 ```bash
-kubectl apply -f /mnt/data/mysql-deployment.yaml
-kubectl apply -f /mnt/data/mysql-service.yaml
+kubectl apply -f /moodle-deployment/mariadb-deployment.yaml
+kubectl apply -f /moodle-deployment/mariadb-service.yaml
 ```
 
 ### Despliegue de Moodle con Helm y archivos YAML
@@ -170,22 +172,22 @@ kubectl apply -f /mnt/data/mysql-service.yaml
 - Aplicar los archivos `moodle-deployment.yaml` y `moodle-service.yaml` para crear el despliegue y servicio de Moodle.
 
 ```bash
-kubectl apply -f /mnt/data/moodle-deployment.yaml
-kubectl apply -f /mnt/data/moodle-service.yaml
+kubectl apply -f /moodle-deployment/moodle-deployment.yaml
+kubectl apply -f /moodle-deployment/moodle-service.yaml
 ```
 
 #### 2. Configurar el Ingress con Certificado SSL
 - Aplicar el archivo `moodle-ingress.yaml` para gestionar el acceso HTTP/HTTPS al clúster mediante el balanceador de carga y Cert-Manager.
 
 ```bash
-kubectl apply -f /mnt/data/moodle-ingress.yaml
+kubectl apply -f /moodle-deployment/moodle-ingress.yaml
 ```
 
 #### 3. Crear y aplicar el certificado para el dominio de Moodle
 - Aplicar el archivo `moodle-certificate.yaml` para crear el certificado SSL asociado al dominio de Moodle utilizando Cert-Manager.
 
 ```bash
-kubectl apply -f /mnt/data/moodle-certificate.yaml
+kubectl apply -f /moodle-deployment/moodle-certificate.yaml
 ```
 
 ### Configuración y modificación del archivo `config.php` de Moodle
@@ -197,7 +199,7 @@ kubectl exec -it <POD_NAME> -- /bin/bash
 
 #### 2. Copiar el archivo `config.php` para editarlo
 ```bash
-kubectl cp <POD_NAME>:/bitnami/moodle/config.php ./config.php
+kubectl cp <POD_NAME>:/bitnami/moodle/config.php ./moodle-deployment/config.php
 ```
 
 #### 3. Modificar `config.php` para ajustar los valores de configuración de Moodle
@@ -235,7 +237,7 @@ require_once(__DIR__ . '/lib/setup.php');
 
 #### 4. Volver a copiar el archivo modificado al contenedor
 ```bash
-kubectl cp ./config.php <POD_NAME>:/bitnami/moodle/config.php
+kubectl cp ./moodle-deployment/config.php <POD_NAME>:/bitnami/moodle/config.php
 ```
 
 ### Comandos de gestión y monitoreo
@@ -265,22 +267,22 @@ kubectl delete pod <POD_NAME> --grace-period=0 --force
 
 ---
 
-## 5. Descripción de archivos de configuración del ambiente (lo que trajimos al repo)
+## 5. Descripción de archivos de configuración del ambiente (ubicados en `moodle-deployment`)
 
-1. `/mnt/data/efs-storageclass.yaml` - Clase de almacenamiento para EFS.
-2. `/mnt/data/letsencrypt-issuer.yaml` - Emisor de certificados Let's Encrypt para Cert-Manager.
-3. `/mnt/data/moodle-certificate.yaml` - Certificado SSL para Moodle.
-4. `/mnt/data/moodle-deployment.yaml` - Despliegue de Moodle.
-5. `/mnt/data/moodle-ingress.yaml` - Configuración de Ingress para Moodle.
-6. `/mnt/data/moodle-service.yaml` - Servicio de Moodle.
-7. `/mnt/data/moodle-values.yaml` - Valores adicionales de configuración de Moodle.
-8. `/mnt/data/config.php` - Archivo de configuración para Moodle (para ajustes manuales).
-9. `/mnt/data/efs-pv.yaml` - Volumen persistente para EFS.
-10. `/mnt/data/efs-pvc.yaml` - Reclamo de volumen persistente para EFS.
-11. `/mnt/data/nginx-deployment.yaml` - Despliegue de NGINX para balanceo de carga.
-12. `/mnt/data/nginx-service.yaml` - Servicio de NGINX.
-13. `/mnt/data/mysql-deployment.yaml` - Despliegue de MySQL para la base de datos de Moodle.
-14. `/mnt/data/mysql-service.yaml` - Servicio de MySQL.
+1. `/moodle-deployment/efs-storageclass.yaml` - Clase de almacenamiento para EFS.
+2. `/moodle-deployment/letsencrypt-issuer.yaml` - Emisor de certificados Let's Encrypt para Cert-Manager.
+3. `/moodle-deployment/moodle-certificate.yaml` - Certificado SSL para Moodle.
+4. `/moodle-deployment/moodle-deployment.yaml` - Despliegue de Moodle.
+5. `/moodle-deployment/moodle-ingress.yaml` - Configuración de Ingress para Moodle.
+6. `/moodle-deployment/moodle-service.yaml` - Servicio de Moodle.
+7. `/moodle-deployment/moodle-values.yaml` - Valores adicionales de configuración de Moodle.
+8. `/moodle-deployment/config.php` - Archivo de configuración para Moodle (para ajustes manuales).
+9. `/moodle-deployment/efs-pv.yaml` - Volumen persistente para EFS.
+10. `/moodle-deployment/efs-pvc.yaml` - Reclamo de volumen persistente para EFS.
+11. `/moodle-deployment/nginx-deployment.yaml` - Despliegue de NGINX para balanceo de carga.
+12. `/moodle-deployment/nginx-service.yaml` - Servicio de NGINX.
+13. `/moodle-deployment/mariadb-deployment.yaml` - Despliegue de MariaDB para la base de datos de Moodle.
+14. `/moodle-deployment/mariadb-service.yaml` - Servicio de MariaDB.
 
 ---
 
