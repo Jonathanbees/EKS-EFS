@@ -103,19 +103,19 @@ Gracias por compartir las imágenes. Tras revisarlas, se puede hacer una interpr
 
 ### Distribución (Desde consola)
 
-- Servicios
+- Servicios  
 ![Imagen de WhatsApp 2024-11-01 a las 20 08 58_780a85bf](https://github.com/user-attachments/assets/0030fc2f-ad86-4b39-b1eb-ddf9a698ba37)
 
-- Pods con replicación
+- Pods con replicación  
 ![Imagen de WhatsApp 2024-11-01 a las 20 08 58_b43b2bf4](https://github.com/user-attachments/assets/1f59c71f-9a16-41d1-991f-5eba9e987a47)
 
-- PV
+- PV  
 ![Imagen de WhatsApp 2024-11-01 a las 20 08 59_3ed5c25f](https://github.com/user-attachments/assets/7bd67452-f17c-48c8-85a4-a4fd01e7b956)
 
-- PVC
+- PVC  
 ![Imagen de WhatsApp 2024-11-01 a las 20 08 59_6da87829](https://github.com/user-attachments/assets/b47f93ad-0446-4830-bb19-7f2cc06189a4)
 
-- Acceso a moodle adentro de un pod
+- Acceso a moodle adentro de un pod  
 ![Imagen de WhatsApp 2024-11-01 a las 20 13 08_90d2df97](https://github.com/user-attachments/assets/c49a2b67-6a3e-48d3-9eaa-7036aab4ed3a)
 
 ### Distribución (Desde interfaz de AWS)
@@ -167,7 +167,7 @@ Gracias por compartir las imágenes. Tras revisarlas, se puede hacer una interpr
 - Curso creado
 ![Imagen de WhatsApp 2024-11-01 a las 20 30 15_1322b66a](https://github.com/user-attachments/assets/d2e40d14-07b0-460d-bb98-8bbe1ec6fd6f)
 
-- Secciones de curso
+- Secciones de curso  
 ![Imagen de WhatsApp 2024-11-01 a las 20 30 43_b3b3cec1](https://github.com/user-attachments/assets/a12dfaa3-70db-4545-95cd-ddc893267ef5)
 
 ---
