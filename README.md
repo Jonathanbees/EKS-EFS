@@ -92,11 +92,199 @@ En el proyecto, desplegamos Moodle en un clúster Kubernetes de alta disponibili
    ```
 ---
 
-## 4. Configuración y despliegue
+## 4. Configuración y despliegue en AWS EKS
+
+### Configuración del entorno en AWS
+
+#### 1. Configuración de la VPC y subredes
+- Crear una VPC con 3 subredes (dos públicas y una privada) en distintas zonas de disponibilidad para alta disponibilidad.
+- Configurar un Internet Gateway para las subredes públicas y una tabla de enrutamiento para habilitar la comunicación externa.
+- Crear y configurar los Grupos de Seguridad necesarios para permitir el tráfico HTTP, HTTPS y los puertos requeridos por Kubernetes.
+
+#### 2. Configuración de EFS (Elastic File System)
+- Crear un sistema de archivos EFS y asociarlo a las subredes configuradas en la VPC.
+- Configurar los puntos de montaje para el EFS en las subredes.
+- Aplicar los archivos `efs-storageclass.yaml`, `efs-pv.yaml`, y `efs-pvc.yaml` para definir la clase de almacenamiento, el volumen persistente y el reclamo de volumen en Kubernetes.
+
+```bash
+kubectl apply -f /mnt/data/efs-storageclass.yaml
+kubectl apply -f /mnt/data/efs-pv.yaml
+kubectl apply -f /mnt/data/efs-pvc.yaml
+```
+
+### Configuración del clúster EKS
+
+#### 1. Crear el clúster EKS y nodos
+- Utilizar AWS CLI para crear el clúster EKS en la región deseada.
+- Crear un grupo de nodos asociado al clúster EKS, configurando el autoescalado para gestionar la demanda de recursos.
+
+```bash
+aws eks create-nodegroup --cluster-name cluster-moodle --nodegroup-name nodes-moodle --node-role arn:aws:iam::<ACCOUNT_ID>:role/LabRole --subnets <SUBNET_IDS> --scaling-config minSize=1,maxSize=3,desiredSize=2 --instance-types t3.medium --region us-east-1
+```
+
+#### 2. Configurar `kubectl` para gestionar el clúster
+```bash
+aws eks update-kubeconfig --name cluster-moodle --region us-east-1
+```
+
+### Instalación de Helm y Cert-Manager en CloudShell
+
+#### 1. Instalar Helm
+```bash
+curl https://raw.githubusercontent.com/helm/helm/master/scripts/get-helm-3 | bash
+```
+
+#### 2. Instalar Cert-Manager para gestionar los certificados SSL
+```bash
+kubectl apply -f https://github.com/jetstack/cert-manager/releases/download/v1.5.4/cert-manager.yaml
+```
+
+#### 3. Configurar el emisor de certificados Let's Encrypt
+Aplicar el archivo `letsencrypt-issuer.yaml` para configurar el emisor de certificados SSL con Let's Encrypt.
+
+```bash
+kubectl apply -f /mnt/data/letsencrypt-issuer.yaml
+```
+
+### Despliegue de NGINX Ingress y servicios de base de datos
+
+#### 1. Desplegar NGINX para el balanceo de carga
+- Aplicar los archivos `nginx-deployment.yaml` y `nginx-service.yaml` para configurar el despliegue y servicio de NGINX.
+
+```bash
+kubectl apply -f /mnt/data/nginx-deployment.yaml
+kubectl apply -f /mnt/data/nginx-service.yaml
+```
+
+#### 2. Desplegar el servicio MySQL para la base de datos de Moodle
+- Aplicar los archivos `mysql-deployment.yaml` y `mysql-service.yaml` para configurar la base de datos MySQL en Kubernetes.
+
+```bash
+kubectl apply -f /mnt/data/mysql-deployment.yaml
+kubectl apply -f /mnt/data/mysql-service.yaml
+```
+
+### Despliegue de Moodle con Helm y archivos YAML
+
+#### 1. Desplegar Moodle utilizando los archivos YAML
+- Aplicar los archivos `moodle-deployment.yaml` y `moodle-service.yaml` para crear el despliegue y servicio de Moodle.
+
+```bash
+kubectl apply -f /mnt/data/moodle-deployment.yaml
+kubectl apply -f /mnt/data/moodle-service.yaml
+```
+
+#### 2. Configurar el Ingress con Certificado SSL
+- Aplicar el archivo `moodle-ingress.yaml` para gestionar el acceso HTTP/HTTPS al clúster mediante el balanceador de carga y Cert-Manager.
+
+```bash
+kubectl apply -f /mnt/data/moodle-ingress.yaml
+```
+
+#### 3. Crear y aplicar el certificado para el dominio de Moodle
+- Aplicar el archivo `moodle-certificate.yaml` para crear el certificado SSL asociado al dominio de Moodle utilizando Cert-Manager.
+
+```bash
+kubectl apply -f /mnt/data/moodle-certificate.yaml
+```
+
+### Configuración y modificación del archivo `config.php` de Moodle
+
+#### 1. Acceder al contenedor de Moodle
+```bash
+kubectl exec -it <POD_NAME> -- /bin/bash
+```
+
+#### 2. Copiar el archivo `config.php` para editarlo
+```bash
+kubectl cp <POD_NAME>:/bitnami/moodle/config.php ./config.php
+```
+
+#### 3. Modificar `config.php` para ajustar los valores de configuración de Moodle
+- Cambiar las credenciales de la base de datos y la URL base (`wwwroot`) en el archivo `config.php`.
+
+```php
+<?php  // Moodle configuration file
+
+unset($CFG);
+global $CFG;
+$CFG = new stdClass();
+
+$CFG->dbtype    = 'mariadb';
+$CFG->dblibrary = 'native';
+$CFG->dbhost    = 'my-moodle-mariadb';
+$CFG->dbname    = 'bitnami_moodle';
+$CFG->dbuser    = 'bn_moodle';
+$CFG->dbpass    = '<MARIADB_PASSWORD>';
+$CFG->prefix    = 'mdl_';
+$CFG->dboptions = array (
+  'dbpersist' => 0,
+  'dbport' => 3306,
+  'dbsocket' => '',
+  'dbcollation' => 'utf8mb4_general_ci',
+);
+
+$CFG->wwwroot   = 'https://kub.reto2telematicakubernetes.online';
+$CFG->dataroot  = '/bitnami/moodledata';
+$CFG->admin     = 'admin';
+
+$CFG->directorypermissions = 02775;
+
+require_once(__DIR__ . '/lib/setup.php');
+```
+
+#### 4. Volver a copiar el archivo modificado al contenedor
+```bash
+kubectl cp ./config.php <POD_NAME>:/bitnami/moodle/config.php
+```
+
+### Comandos de gestión y monitoreo
+
+#### 1. Comandos para verificar el estado del clúster y recursos
+```bash
+kubectl get pods
+kubectl get svc
+kubectl get pvc
+kubectl describe pod <POD_NAME>
+kubectl logs <POD_NAME>
+```
+
+#### 2. Comandos para gestionar el despliegue
+- Eliminar despliegues, servicios, PVC, y pods cuando sea necesario.
+
+```bash
+kubectl delete deployment my-moodle
+kubectl delete svc my-moodle
+kubectl delete pvc --selector=app.kubernetes.io/name=moodle
+kubectl delete pod <POD_NAME> --grace-period=0 --force
+```
+
+### Acceso a Moodle en Producción
+
+- Una vez completada la configuración, Moodle estará accesible en el dominio [https://kub.reto2telematicakubernetes.online](https://kub.reto2telematicakubernetes.online) con un certificado SSL válido gestionado por Cert-Manager.
 
 ---
 
-## 5. Fotos de la ejecución del sistema:
+## 5. Descripción de archivos de configuración del ambiente (lo que trajimos al repo)
+
+1. `/mnt/data/efs-storageclass.yaml` - Clase de almacenamiento para EFS.
+2. `/mnt/data/letsencrypt-issuer.yaml` - Emisor de certificados Let's Encrypt para Cert-Manager.
+3. `/mnt/data/moodle-certificate.yaml` - Certificado SSL para Moodle.
+4. `/mnt/data/moodle-deployment.yaml` - Despliegue de Moodle.
+5. `/mnt/data/moodle-ingress.yaml` - Configuración de Ingress para Moodle.
+6. `/mnt/data/moodle-service.yaml` - Servicio de Moodle.
+7. `/mnt/data/moodle-values.yaml` - Valores adicionales de configuración de Moodle.
+8. `/mnt/data/config.php` - Archivo de configuración para Moodle (para ajustes manuales).
+9. `/mnt/data/efs-pv.yaml` - Volumen persistente para EFS.
+10. `/mnt/data/efs-pvc.yaml` - Reclamo de volumen persistente para EFS.
+11. `/mnt/data/nginx-deployment.yaml` - Despliegue de NGINX para balanceo de carga.
+12. `/mnt/data/nginx-service.yaml` - Servicio de NGINX.
+13. `/mnt/data/mysql-deployment.yaml` - Despliegue de MySQL para la base de datos de Moodle.
+14. `/mnt/data/mysql-service.yaml` - Servicio de MySQL.
+
+---
+
+## 6. Fotos de la ejecución del sistema:
 
 ### Distribución (Desde consola)
 
@@ -169,13 +357,13 @@ En el proyecto, desplegamos Moodle en un clúster Kubernetes de alta disponibili
 
 ---
 
-## 6. Video:
+## 7. Video:
 
 (Lo grabaremos el jueves y te lo mandaremos por el correo institucional)
 
 ---
 
-## Referencias
+## 8. Referencias
 
 - **Kubernetes Documentation:** [https://kubernetes.io/docs/](https://kubernetes.io/docs/)
 - **NGINX Ingress Controller Documentation:** [https://kubernetes.github.io/ingress-nginx/](https://kubernetes.github.io/ingress-nginx/)
