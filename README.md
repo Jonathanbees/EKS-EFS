@@ -361,7 +361,8 @@ kubectl delete pod <POD_NAME> --grace-period=0 --force
 
 ## 7. Video:
 
-(Lo grabaremos el jueves y te lo mandaremos por el correo institucional)
+TdeTelemática - Reto 2 - EKS-EFS - Moodle
+[https://youtu.be/vtndBFc7ZzM](https://youtu.be/vtndBFc7ZzM)
 
 ---
 
